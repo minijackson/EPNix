@@ -5,12 +5,12 @@
   buildPackages,
   mkEpicsPackage,
   fetchgit,
-  fetchpatch,
   version,
   hash,
-  readline,
   local_config_site ? {},
   local_release ? {},
+  iproute2,
+  util-linux,
 }:
 with lib; let
   older = versionOlder version;
@@ -36,6 +36,9 @@ in
       rev = "R${version}";
       inherit hash;
     };
+
+    # In order to add the dummy network interface, and for the 'unshare' command
+    nativeBuildInputs = [iproute2 util-linux];
 
     patches = optionals (older "7.0.5") [
       # Support "undefine MYVAR" in convertRelease.pl
@@ -133,8 +136,37 @@ in
           $out/lib/perl/*/${stdenv.buildPlatform.system}*
       '');
 
+    # Use unshare to place ourselves in a different network namespace,
+    # allowing us to create and manipulate network interfaces.
+    checkPhase = ''
+      unshare --map-root-user --net $SHELL <<<"$containedCheckPhase"
+    '';
+
+    containedCheckPhase = ''
+      # Setup the loopback address that disappeared
+      # when we entered the net namespace
+      ip addr add 127.0.0.1/8 scope host dev lo
+      ip addr add ::1/128 scope host dev lo
+
+      # Add a dummy interface with a broadcast address
+      ip link add epics1 type dummy
+      ip addr add 192.168.100.1/24 broadcast + dev epics1
+
+      local flagsArray=(
+        -j''${NIX_BUILD_CORES}
+        SHELL=$SHELL
+        VERBOSE=y
+        runtests
+      )
+
+      echoCmd 'check flags' "''${flagsArray[@]}"
+      make "''${flagsArray[@]}"
+
+      unset flagsArray
+    '';
+
     # TODO: Some tests fail
-    doCheck = false;
+    doCheck = true;
 
     meta = {
       description = "The Experimental Physics and Industrial Control System";
