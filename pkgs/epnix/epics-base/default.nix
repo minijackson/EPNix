@@ -5,7 +5,6 @@
   buildPackages,
   mkEpicsPackage,
   fetchgit,
-  fetchpatch,
   version,
   hash,
   local_config_site ? {},
@@ -31,10 +30,16 @@ in
 
     isEpicsBase = true;
 
+    # src = fetchgit {
+    #   url = "https://git.launchpad.net/epics-base";
+    #   rev = "R${version}";
+    #   inherit hash;
+    # };
+
     src = fetchgit {
-      url = "https://git.launchpad.net/epics-base";
-      rev = "R${version}";
-      inherit hash;
+      url = "https://github.com/minijackson/epics-base";
+      rev = "510f860bb7bddc4b4e677657a858c2ed40f27956";
+      hash = "sha256-UOcBEdMn5H0aTdB4CBqyPFpxXj672KKP+UvXZOowTyQ=";
     };
 
     patches = optionals (older "7.0.5") [
@@ -121,6 +126,8 @@ in
         for file in $out/cfg/TOOLCHAIN.*; do
           sed -i '/^#/d' "$file"
         done
+
+        patchShebangs $out/bin/*/
       ''
       + (optionalString (stdenv.buildPlatform != stdenv.hostPlatform) ''
         # Remove the build platform pkg-config file, since we are stripping the

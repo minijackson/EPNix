@@ -1,0 +1,353 @@
+diff --git a/example/meson.build b/example/meson.build
+new file mode 100644
+index 0000000..5c2cb80
+--- /dev/null
++++ b/example/meson.build
+@@ -0,0 +1,15 @@
++foreach t : [
++    ['simplesrv', ['./simplesrv.cpp']],
++    ['mailbox', ['./mailbox.cpp']],
++    ['ticker', ['./ticker.cpp']],
++    ['simpleget', ['./simpleget.cpp']],
++    ['client', ['./client.cpp']],
++    ['rpc_server', ['./rpc_server.cpp']],
++    ['rpc_client', ['./rpc_client.cpp']],
++  ]
++  executable(
++    t[0],
++    t[1],
++    dependencies: [epics_base, libCom, pvxs_dep],
++  )
++endforeach
+diff --git a/ioc/meson.build b/ioc/meson.build
+new file mode 100644
+index 0000000..79703f1
+--- /dev/null
++++ b/ioc/meson.build
+@@ -0,0 +1,20 @@
++install_data(['./pvxsIoc.dbd'], install_dir: dbd_install_dir)
++
++libpvxsIoc = library(
++  'pvxsIoc',
++  ['./iochooks.cpp'],
++  cpp_args: ['-DPVXS_IOC_API_BUILDING'],
++  dependencies: [epics_base, libCom, pvxs_dep],
++  install: true,
++  install_dir: lib_install_dir,
++  # HACK: Workaround https://github.com/mesonbuild/meson/issues/6541
++  install_rpath: epics_base_libdir,
++)
++
++install_headers(
++  ['./pvxs/iochooks.h'],
++  subdir: 'pvxs',
++)
++
++pkgconfig = import('pkgconfig')
++pkgconfig.generate(libpvxsIoc)
+diff --git a/meson.build b/meson.build
+new file mode 100644
+index 0000000..a40ac09
+--- /dev/null
++++ b/meson.build
+@@ -0,0 +1,57 @@
++project(
++  'pvxs',
++  'cpp',
++  version: '1.1.2',
++  license: 'EPICS',
++  # license_files: './LICENSE',
++)
++
++# Build Machine as in Autotools terminology: the machine that will build
++# the final code, which in EPICS terminology is the Host Machine.
++gnu_host_arch = build_machine.cpu() + '-' + build_machine.system()
++epics_host_arch = run_command(
++  'EpicsHostArch.pl',
++  '-g',
++  gnu_host_arch,
++  capture: true,
++  check: true
++).stdout().strip()
++
++# Host Machine as in Autotools terminology: the machine that will host and run
++# the final code, which in EPICS terminology is the Target Machine.
++gnu_target_arch = host_machine.cpu() + '-' + host_machine.system()
++epics_target_arch = run_command(
++  'EpicsHostArch.pl',
++  '-g',
++  gnu_target_arch,
++  capture: true,
++  check: true
++).stdout().strip()
++
++if get_option('epics_install_hierarchy')
++  bin_install_dir = get_option('bindir') / epics_target_arch
++  lib_install_dir = get_option('libdir') / epics_target_arch
++else
++  bin_install_dir = get_option('bindir')
++  lib_install_dir = get_option('libdir')
++endif
++
++dbd_install_dir = get_option('prefix') / 'dbd'
++db_install_dir = get_option('prefix') / 'db'
++
++epics_base = dependency('epics-base-' + epics_target_arch)
++epics_base_libdir = epics_base.get_pkgconfig_variable('libdir')
++epics_os_class = epics_base.get_pkgconfig_variable('OS_CLASS')
++epics_cmplr_class = epics_base.get_pkgconfig_variable('CMPLR_CLASS')
++
++compiler = meson.get_compiler('cpp')
++
++libca = compiler.find_library('ca', dirs: [epics_base_libdir])
++libCom = compiler.find_library('Com', dirs: [epics_base_libdir])
++libdbCore = compiler.find_library('dbCore', dirs: [epics_base_libdir])
++
++subdir('src')
++subdir('tools')
++subdir('ioc')
++subdir('test')
++subdir('example')
+diff --git a/meson_options.txt b/meson_options.txt
+new file mode 100644
+index 0000000..1243b3a
+--- /dev/null
++++ b/meson_options.txt
+@@ -0,0 +1 @@
++option('epics_install_hierarchy', type : 'boolean', value : true)
+diff --git a/src/evhelper.cpp b/src/evhelper.cpp
+index 237f953..3670ae8 100644
+--- a/src/evhelper.cpp
++++ b/src/evhelper.cpp
+@@ -32,6 +32,7 @@
+ #include "pvaproto.h"
+ #include "utilpvt.h"
+ #include <pvxs/log.h>
++#include <pvxs/util.h>
+ 
+ typedef epicsGuard<epicsMutex> Guard;
+ 
+diff --git a/src/meson.build b/src/meson.build
+new file mode 100644
+index 0000000..083d4fe
+--- /dev/null
++++ b/src/meson.build
+@@ -0,0 +1,126 @@
++describe_h = configure_file(
++  output: 'describe.h',
++  configuration: configuration_data({
++    'EPICS_HOST_ARCH': f'"@epics_host_arch@"',
++    'T_A': f'"@epics_target_arch@"',
++    'OS_CLASS': f'"@epics_os_class@"',
++    'CMPLR_CLASS': f'"@epics_cmplr_class@"',
++  }),
++)
++
++vcs_h = configure_file(
++  output: 'pvxsVCS.h',
++  configuration: configuration_data({
++  }),
++)
++
++version = meson.project_version().split('.')
++version_num_h = configure_file(
++  output: 'versionNum.h',
++  configuration: configuration_data({
++    'PVXS_MAJOR_VERSION': version[0],
++    'PVXS_MINOR_VERSION': version[1],
++    'PVXS_MAINTENANCE_VERSION': version[2],
++  }),
++)
++
++# HACK: this installs generated headers in a 'pvxs' subdir
++# See: https://github.com/mesonbuild/meson/issues/2320
++fs = import('fs')
++run_command(
++  [
++    'sh',
++    '-c',
++    'mkdir @0@/pvxs; cp @1@/@2@ @1@/@3@ @1@/@4@ @0@/pvxs/'.format(
++      meson.current_build_dir(),
++      fs.parent(meson.current_build_dir()),
++      version_num_h,
++      vcs_h,
++      describe_h,
++    ),
++  ],
++  check: true,
++)
++
++libevent = dependency('libevent_pthreads')
++
++libpvxs = library(
++  'pvxs',
++  [
++    'describe.cpp',
++    'log.cpp',
++    'unittest.cpp',
++    'util.cpp',
++    'osgroups.cpp',
++    'sharedarray.cpp',
++    'bitmask.cpp',
++    'type.cpp',
++    'data.cpp',
++    'datafmt.cpp',
++    'pvrequest.cpp',
++    'dataencode.cpp',
++    'nt.cpp',
++    'evhelper.cpp',
++    'udp_collector.cpp',
++
++    # TODO:
++    './os/default/osdSockExt.cpp',
++
++    'config.cpp',
++    'conn.cpp',
++
++    'server.cpp',
++    'serverconn.cpp',
++    'serverchan.cpp',
++    'serverintrospect.cpp',
++    'serverget.cpp',
++    'servermon.cpp',
++    'serversource.cpp',
++    'sharedpv.cpp',
++
++    'client.cpp',
++    'clientreq.cpp',
++    'clientconn.cpp',
++    'clientintrospect.cpp',
++    'clientget.cpp',
++    'clientmon.cpp',
++    'clientdiscover.cpp',
++  ],
++  cpp_args: ['-DPVXS_API_BUILDING', '-DPVXS_ENABLE_EXPERT_API'],
++  dependencies: [epics_base, libCom, libevent],
++  install: true,
++  install_dir: lib_install_dir,
++  # HACK: Workaround https://github.com/mesonbuild/meson/issues/6541
++  install_rpath: epics_base_libdir,
++)
++
++install_headers(
++  [
++    describe_h,
++    vcs_h,
++    version_num_h,
++    './pvxs/version.h',
++    './pvxs/log.h',
++    './pvxs/unittest.h',
++    './pvxs/util.h',
++    './pvxs/sharedArray.h',
++    './pvxs/data.h',
++    './pvxs/nt.h',
++    './pvxs/netcommon.h',
++    './pvxs/server.h',
++    './pvxs/srvcommon.h',
++    './pvxs/sharedpv.h',
++    './pvxs/source.h',
++    './pvxs/client.h',
++  ],
++  subdir: 'pvxs',
++)
++
++pvxs_dep = declare_dependency(
++  include_directories: '.',
++  dependencies: [libevent],
++  link_with: [libpvxs],
++)
++
++pkgconfig = import('pkgconfig')
++pkgconfig.generate(libpvxs)
+diff --git a/test/meson.build b/test/meson.build
+new file mode 100644
+index 0000000..5572c7d
+--- /dev/null
++++ b/test/meson.build
+@@ -0,0 +1,61 @@
++tests = [
++  ['testsock', ['./testsock.cpp']],
++  ['testutil', ['./testutil.cpp']],
++  ['testev', ['./testev.cpp']],
++  ['testlog', ['./testlog.cpp']],
++  ['testudp', ['./testudp.cpp']],
++  ['testshared', ['./testshared.cpp']],
++  ['testbitmask', ['./testbitmask.cpp']],
++  ['testxcode', ['./testxcode.cpp']],
++  ['testtype', ['./testtype.cpp']],
++  ['testdata', ['./testdata.cpp']],
++  ['testnt', ['./testnt.cpp']],
++  ['testconfig', ['./testconfig.cpp']],
++  ['testwild', ['./testwild.cpp']],
++  ['testpvreq', ['./testpvreq.cpp']],
++  ['testinfo', ['./testinfo.cpp']],
++  ['testget', ['./testget.cpp']],
++  ['testmon', ['./testmon.cpp']],
++  ['testput', ['./testput.cpp']],
++  ['testrpc', ['./testrpc.cpp']],
++  ['test1000', ['./test1000.cpp']],
++  ['testendian', ['./testendian.cpp']],
++]
++
++epics_version = epics_base.version().split('.')
++
++# TODO: registerRecordDeviceDriver?
++# if epics_version[0] == '3' and epics_version[1] == '15'
++#   tests += [
++# endif
++
++foreach t : tests
++  test = executable(
++    t[0],
++    t[1],
++    dependencies: [epics_base, libCom, pvxs_dep],
++  )
++  test(t[0], test, is_parallel: true)
++endforeach
++
++if epics_version[0] == '7' and epics_version[1] == '0'
++  benchmark = executable(
++    'benchdata',
++    ['./benchdata.cpp'],
++    dependencies: [epics_base, libCom, pvxs_dep],
++  )
++  benchmark('benchdata', benchmark)
++endif
++
++# Development utilities, not tests
++foreach t : [
++    ['mcat', ['./mcat.cpp']],
++    ['spam', ['./spam.cpp']],
++    ['eatspam', ['./eatspam.cpp']],
++  ]
++  test = executable(
++    t[0],
++    t[1],
++    dependencies: [epics_base, libCom, pvxs_dep],
++  )
++endforeach
+diff --git a/tools/meson.build b/tools/meson.build
+new file mode 100644
+index 0000000..6effa14
+--- /dev/null
++++ b/tools/meson.build
+@@ -0,0 +1,19 @@
++foreach e : [
++    ['pvxvct', ['./pvxvct.cpp']],
++    ['pvxinfo', ['./info.cpp']],
++    ['pvxmonitor', ['./monitor.cpp']],
++    ['pvxput', ['./put.cpp']],
++    ['pvxcall', ['./call.cpp']],
++    ['pvxlist', ['./list.cpp']],
++    ['pvxmshim', ['./mshim.cpp']],
++  ]
++  executable(
++    e[0],
++    e[1],
++    dependencies: [epics_base, libCom, pvxs_dep],
++    install: true,
++    install_dir: bin_install_dir,
++    # HACK: Workaround https://github.com/mesonbuild/meson/issues/6541
++    install_rpath: epics_base_libdir,
++  )
++endforeach
