@@ -7,14 +7,14 @@
 }:
 mkEpicsPackage rec {
   pname = "modbus";
-  version = "3-2";
+  version = "3-3";
   varname = "MODBUS";
 
   src = fetchFromGitHub {
     owner = "epics-modules";
     repo = pname;
-    rev = "R3-2";
-    hash = "sha256-k8MSgNxib4JT0JTbs0BOm75HIVvxHuVPPlo7VcMCnzg=";
+    rev = "R${version}";
+    hash = "sha256-KPk+SKR/Mpwg2xCkf9k8v2CYz+IvEa/6ceWMtYX+fLQ=";
   };
 
   propagatedBuildInputs = with epnix.support; [asyn];
