@@ -82,24 +82,31 @@
       in
         epnixLib;
 
-      nixosModules.default = {
-        imports = [
-          self.nixosModules.ioc
+      nixosModules = {
+        default = {
+          imports = [
+            self.nixosModules.ioc
+            self.nixosModules.nixos
+          ];
+        };
+
+        ioc = {
+          imports = import ./ioc/modules/module-list.nix;
+          _module.args.epnix = self;
+        };
+
+        nixos = {lib, ...}: {
+          imports = import ./nixos/module-list.nix;
+          # use mkBefore so that end users can be sure
+          # that their overlay can override EPNix packages
+          nixpkgs.overlays = lib.mkBefore [self.overlays.default];
+          _module.args.epnixLib = self.lib;
+        };
+
+        phoebus-ecosystem.imports = [
           self.nixosModules.nixos
+          ./pkgs/phoebus-ecosystem-image/configuration/configuration.nix
         ];
-      };
-
-      nixosModules.ioc = {
-        imports = import ./ioc/modules/module-list.nix;
-        _module.args.epnix = self;
-      };
-
-      nixosModules.nixos = {lib, ...}: {
-        imports = import ./nixos/module-list.nix;
-        # use mkBefore so that end users can be sure
-        # that their overlay can override EPNix packages
-        nixpkgs.overlays = lib.mkBefore [self.overlays.default];
-        _module.args.epnixLib = self.lib;
       };
 
       templates.top = {
