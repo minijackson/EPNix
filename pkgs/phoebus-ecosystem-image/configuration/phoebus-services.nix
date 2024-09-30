@@ -27,6 +27,7 @@
     elasticsearch = {
       enable = true;
       package = pkgs.elasticsearch7;
+      extraJavaOptions = ["-Xmx256m"];
     };
 
     # Kafka specified in ./phoebus-alarm.nix

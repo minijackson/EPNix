@@ -11,4 +11,6 @@
       EPICS_CA_ADDR_LIST = [ "127.0.0.1" ];
     };
   };
+
+  services.tomcat.javaOpts = "-Xmx256m";
 }
