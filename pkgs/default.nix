@@ -101,6 +101,7 @@ in
 
       # EPNix specific packages
       docs = callPackage ./docs {};
+      phoebus-ecosystem-image = callPackage ./phoebus-ecosystem-image {};
 
       # Documentation support packages
       psu-simulator = callPackage ./doc-support/psu-simulator {};
