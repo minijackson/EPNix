@@ -31,6 +31,7 @@ in
       # nix shell 'nixpkgs#apacheKafka' -c kafka-storage.sh random-uuid
       clusterId = "8MEBIhkRS963am5l4DsQlQ";
       formatLogDirs = true;
+      jvmOptions = [ "-Xmx256m" ];
       settings = {
         listeners = [
           # This is the address Kafka will listen to,
