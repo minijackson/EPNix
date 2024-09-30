@@ -6,4 +6,6 @@
 
     openFirewall = true;
   };
+
+  services.tomcat.javaOpts = "-Xmx256m";
 }
