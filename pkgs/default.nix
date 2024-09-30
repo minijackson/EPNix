@@ -122,6 +122,8 @@ in
       docs = callPackage ./docs {
         nixdomainLib = inputs.sphinxcontrib-nixdomain.lib;
       };
+      phoebus-ecosystem-virtualbox-image = callPackage ./phoebus-ecosystem-image/virtualbox-image.nix {};
+      phoebus-ecosystem-qemu-image = callPackage ./phoebus-ecosystem-image/qemu-image.nix {};
 
       # Documentation support packages
       psu-simulator = callPackage ./doc-support/psu-simulator {};
