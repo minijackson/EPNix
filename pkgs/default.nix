@@ -45,6 +45,7 @@ recurseIntoAttrs {
 
   epnix = scope prev (
     self:
+
     {
       # EPICS base
 
@@ -67,6 +68,8 @@ recurseIntoAttrs {
       pythonSoftIOC = final.python3Packages.softioc;
 
       inherit (self.callPackage ./python-modules/by-name/lewis/lib.nix { }) mkLewisSimulator;
+      phoebus-ecosystem-virtualbox-image = callPackage ./phoebus-ecosystem/virtualbox-image.nix { };
+      phoebus-ecosystem-qemu-vm = callPackage ./phoebus-ecosystem/qemu-vm.nix { };
 
       # EPNix specific packages
       ci-scripts = scope self (self: importByName ./ci-scripts/by-name self);
