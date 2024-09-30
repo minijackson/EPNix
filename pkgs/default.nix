@@ -122,6 +122,7 @@ in
       docs = callPackage ./docs {
         nixdomainLib = inputs.sphinxcontrib-nixdomain.lib;
       };
+      phoebus-ecosystem-image = callPackage ./phoebus-ecosystem-image {};
 
       # Documentation support packages
       psu-simulator = callPackage ./doc-support/psu-simulator {};
