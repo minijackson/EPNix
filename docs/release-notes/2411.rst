@@ -1,0 +1,12 @@
+24.11 Release notes
+===================
+
+.. default-domain:: nix
+
+.. role:: nix(code)
+   :language: nix
+
+Breaking changes
+----------------
+
+None
