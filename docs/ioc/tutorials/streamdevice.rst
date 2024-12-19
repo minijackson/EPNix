@@ -33,7 +33,7 @@ leave it running in a separate terminal.
 Creating your top
 -----------------
 
-We can use these command to create an EPNix top:
+Use these commands to create an EPNix top:
 
 .. code-block:: bash
 
