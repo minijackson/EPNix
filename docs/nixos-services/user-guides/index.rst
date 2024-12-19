@@ -8,9 +8,9 @@ User guides
 ----
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
-   ./ca-gateway.rst
-   ./channel-finder.rst
-   ./phoebus-alarm.rst
-   ./phoebus-save-and-restore.rst
+   ca-gateway
+   channel-finder
+   phoebus-alarm
+   phoebus-save-and-restore
