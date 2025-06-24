@@ -106,7 +106,7 @@
     matrix = itertools.product(machines, commands)
 
     for (machine, command) in matrix:
-        res = machine.succeed(f"{command}")
+        res = machine.wait_until_succeeds(f"{command}")
         print(res)
   '';
 }
