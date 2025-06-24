@@ -5,7 +5,7 @@ workflow:
 default:
   interruptible: true
   tags:
-    - nix
+    - nix-tmp
   cache:
     paths: [".cache/nix"]
     when: "always"
@@ -21,7 +21,7 @@ before_script:
 run_checks:
   stage: test
   script:
-    - nix flake check $NIX_BUILD_FLAGS
+    - nix flake check --keep-going $NIX_BUILD_FLAGS
 
 editorconfig:
   stage: test
