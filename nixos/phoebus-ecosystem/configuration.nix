@@ -58,6 +58,16 @@
     "flakes"
   ];
 
+  swapDevices = lib.mkVMOverride [
+    {
+      device = "/var/swapfile";
+      size = 2048; # MiB
+    }
+  ];
+
+  boot.initrd.systemd.enable = true;
+  boot.kernel.sysfs.module.zswap.parameters.enabled = true;
+
   services.getty = {
     greetingLine = ''<< Phoebus ecosystem VM, on NixOS with EPNix ${config.system.nixos.label} (\m) - \l >>'';
     helpLine = ''
