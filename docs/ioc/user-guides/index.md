@@ -10,6 +10,7 @@
 private-repo-setup
 flake-registry
 dependencies
+deploying
 developing-modules
 reccaster
 mrf-devices
