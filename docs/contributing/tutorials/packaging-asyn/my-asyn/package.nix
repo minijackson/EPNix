@@ -9,8 +9,6 @@
   ipac,
   seq,
   sscan,
-  local_config_site ? { },
-  local_release ? { },
 }:
 mkEpicsPackage {
   pname = "my-asyn";
@@ -26,8 +24,7 @@ mkEpicsPackage {
 
   patches = [ ./use-pkg-config.patch ];
 
-  inherit local_release;
-  local_config_site = local_config_site // {
+  local_config_site = {
     TIRPC = "YES";
   };
 
