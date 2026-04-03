@@ -1,5 +1,6 @@
 {
   config,
+  epnixLib,
   lib,
   modulesPath,
   pkgs,
@@ -43,4 +44,31 @@
       "--version=${config.system.nixos.label}"
     ];
   };
+
+  # Install the `./configuration` directory into `/etc/nixos`,
+  # so that users can rebuild and change the configuration of the VM.
+  boot.postBootCommands = ''
+    ${lib.getExe (
+      pkgs.writeShellApplication {
+        name = "install-nixos-config";
+        runtimeInputs = [ pkgs.envsubst ];
+        runtimeEnv = {
+          EPNIX_BRANCH = epnixLib.versions.current-branch;
+          # EPNix points Nixpkgs at the same branch than the stable EPNix branch
+          EPNIX_STABLE = epnixLib.versions.stable;
+          HOSTNAME = config.networking.hostName;
+        };
+
+        text = ''
+          shopt -s nullglob
+
+          filesInNixOSDir=(/etc/nixos/* /etc/nixos/.*)
+          if (( "''${#filesInNixOSDir[@]}" == 0 )); then
+            cp -rT --no-preserve=mode ${./configuration} /etc/nixos
+            envsubst -i /etc/nixos/flake.nix -o /etc/nixos/flake.nix
+          fi
+        '';
+      }
+    )}
+  '';
 }
