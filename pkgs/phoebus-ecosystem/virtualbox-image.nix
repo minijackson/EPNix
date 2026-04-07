@@ -12,3 +12,8 @@ let
   image = finalSystem.config.system.build.virtualBoxOVA;
 in
 image
+// {
+  passthru = image.passthru or { } // {
+    inherit (finalSystem) config;
+  };
+}
