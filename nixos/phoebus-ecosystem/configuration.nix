@@ -18,6 +18,7 @@
     alarm-logger.port = 8081;
     save-restore.port = 8082;
     olog.port = 8083;
+    channel-finder.port = 8084;
 
     apache-kafka.port = 9092;
 
