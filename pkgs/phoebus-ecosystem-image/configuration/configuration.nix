@@ -3,6 +3,7 @@
   epnixLib,
   lib,
   pkgs,
+  ports,
   ...
 }:
 {
@@ -30,6 +31,8 @@
       port = 5064;
       proto = "udp";
     };
+
+    ssh.port = 2222;
   };
 
   networking.hostName = "phoebus-ecosystem";
@@ -53,6 +56,16 @@
     withPython3 = false;
     withRuby = false;
   };
+
+  services.openssh = {
+    enable = true;
+    ports = [ ports.ssh.port ];
+    settings = {
+      PermitRootLogin = "yes";
+      PermitEmptyPasswords = "yes";
+    };
+  };
+  security.pam.services.sshd.allowNullPassword = true;
 
   nix.settings.experimental-features = [
     "nix-command"
