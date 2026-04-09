@@ -1,11 +1,16 @@
-{ config, ports, ... }:
+{
+  config,
+  external-ports,
+  internal-ports,
+  ...
+}:
 let
   # This is the address clients will actually use to connect to Kafka,
   # it also needs to be configured in the Kafka server for some reason,
   # in "advertised.listeners".
   # It is both the "localhost" address when inside and outside the VM,
   # since the port is forwarded.
-  kafkaAdvertisedListenSockAddr = "127.0.0.1:${toString ports.apache-kafka.port}";
+  kafkaAdvertisedListenSockAddr = "127.0.0.1:${toString external-ports.apache-kafka.port}";
 
   # This is an address internal to Kafka,
   # that Kafka uses to synchronise itself with itself??
@@ -16,12 +21,11 @@ in
   services = {
     phoebus-alarm-server = {
       enable = true;
-      openFirewall = true;
       settings."org.phoebus.applications.alarm/server" = kafkaAdvertisedListenSockAddr;
     };
 
     phoebus-alarm-logger.settings = {
-      "server.port" = ports.alarm-logger.port;
+      "server.port" = internal-ports.alarm-logger.port;
       "bootstrap.servers" = kafkaAdvertisedListenSockAddr;
     };
 
@@ -66,7 +70,7 @@ in
 
   systemd.services.apache-kafka.unitConfig.StateDirectory = "apache-kafka";
 
-  networking.firewall.allowedTCPPorts = [ ports.apache-kafka.port ];
+  networking.firewall.allowedTCPPorts = [ external-ports.apache-kafka.port ];
 
   environment.systemPackages = [ config.services.apache-kafka.package ];
 }

@@ -1,7 +1,7 @@
 {
   lib,
   pkgs,
-  ports,
+  internal-ports,
   ...
 }:
 {
@@ -12,7 +12,7 @@
       enable = true;
       settings = {
         "server.http.enable" = true;
-        "server.http.port" = ports.olog.port;
+        "server.http.port" = internal-ports.olog.port;
 
         "demo_auth.enabled" = true;
       };
@@ -21,17 +21,15 @@
     phoebus-save-and-restore = {
       enable = true;
       settings = {
-        "server.port" = ports.save-restore.port;
+        "server.port" = internal-ports.save-restore.port;
         "auth.impl" = "demo";
       };
-      openFirewall = true;
     };
 
     channel-finder = {
       enable = true;
-      openFirewall = true;
       settings = {
-        "server.http.port" = ports.channel-finder.port;
+        "server.http.port" = internal-ports.channel-finder.port;
         "demo_auth.enabled" = true;
       };
     };
@@ -40,7 +38,7 @@
       enable = true;
 
       channelfinderapi.DEFAULT = {
-        BaseURL = "http://localhost:${toString ports.channel-finder.port}/ChannelFinder";
+        BaseURL = "http://localhost:${toString internal-ports.channel-finder.port}/ChannelFinder";
         username = "admin";
         password = "adminPass";
       };
@@ -81,10 +79,6 @@
 
     # Kafka specified in ./phoebus-alarm.nix
   };
-
-  networking.firewall.allowedTCPPorts = [
-    ports.olog.port
-  ];
 
   nixpkgs.config.allowUnfreePredicate =
     pkg:

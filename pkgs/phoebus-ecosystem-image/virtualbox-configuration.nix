@@ -4,7 +4,7 @@
   lib,
   modulesPath,
   pkgs,
-  ports,
+  external-ports,
   ...
 }:
 {
@@ -34,7 +34,7 @@
           # guest port
           (toString cfg.port)
         ]
-      ) ports;
+      ) external-ports;
     };
 
     exportParams = [

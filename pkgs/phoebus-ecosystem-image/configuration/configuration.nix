@@ -3,7 +3,7 @@
   epnixLib,
   lib,
   pkgs,
-  ports,
+  external-ports,
   ...
 }:
 {
@@ -11,29 +11,10 @@
     ./archiver-appliance.nix
     ./phoebus-alarm.nix
     ./phoebus-services.nix
+    ./ports.nix
+    ./reverse-proxy.nix
     ./ioc.nix
   ];
-
-  _module.args.ports = {
-    archiver-appliance.port = 8080;
-    alarm-logger.port = 8081;
-    save-restore.port = 8082;
-    olog.port = 8083;
-    channel-finder.port = 8084;
-
-    apache-kafka.port = 9092;
-
-    ioc = {
-      port = 5064;
-      proto = "tcp";
-    };
-    ioc-udp = {
-      port = 5064;
-      proto = "udp";
-    };
-
-    ssh.port = 2222;
-  };
 
   networking.hostName = "phoebus-ecosystem";
 
@@ -59,7 +40,7 @@
 
   services.openssh = {
     enable = true;
-    ports = [ ports.ssh.port ];
+    ports = [ external-ports.ssh.port ];
     settings = {
       PermitRootLogin = "yes";
       PermitEmptyPasswords = "yes";
@@ -71,8 +52,6 @@
     "nix-command"
     "flakes"
   ];
-
-  # TODO: make a reverse proxy instead of using various ports?
 
   swapDevices = lib.mkVMOverride [
     {

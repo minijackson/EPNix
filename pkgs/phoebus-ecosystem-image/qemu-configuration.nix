@@ -1,6 +1,6 @@
 {
   lib,
-  ports,
+  external-ports,
   ...
 }:
 {
@@ -14,6 +14,6 @@
       host.port = cfg.port;
       guest.port = cfg.port;
       proto = cfg.proto or "tcp";
-    }) ports;
+    }) external-ports;
   };
 }
