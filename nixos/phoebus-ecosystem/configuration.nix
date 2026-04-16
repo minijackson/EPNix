@@ -12,6 +12,9 @@
     ./phoebus-alarm.nix
     ./phoebus-services.nix
     ./ioc.nix
+
+    # Configuration used only when building images
+    ./images/virtualbox.nix
   ];
 
   _module.args.ports = {
