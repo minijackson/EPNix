@@ -14,6 +14,9 @@
     ./ports.nix
     ./reverse-proxy.nix
     ./ioc.nix
+
+    # Configuration used only when building images
+    ./images/virtualbox.nix
   ];
 
   networking.hostName = "phoebus-ecosystem";
