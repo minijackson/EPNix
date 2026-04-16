@@ -10,9 +10,12 @@
   image.modules.virtualbox = {
     image.baseName = "phoebus-ecosystem-epnix-${config.system.nixos.label}-${pkgs.stdenv.hostPlatform.system}";
 
+    virtualisation.diskSize = "auto";
+
     virtualbox = {
       vmName = "Phoebus ecosystem";
       memorySize = 4096;
+      baseImageFreeSpace = 10 * 1024;
       params = {
         cpus = 2;
 
