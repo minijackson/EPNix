@@ -48,12 +48,8 @@ in
         freeformType = settingsFormat.type;
         options = {
           "server.port" = lib.mkOption {
-            type = lib.types.port;
+            type = with lib.types; coercedTo port toString str;
             default = 8181;
-            # TODO: Weirdness of the javaProperties format?
-            # It says it supports integers and booleans, but during the build
-            # only accepts strings?
-            apply = toString;
             description = "The HTTP server port for the REST service.";
           };
 

@@ -94,13 +94,13 @@ in
 
               Use `lib.mkForce` to override values from {nix:option}`environment.epics.ca_addr_list`.
             '';
-            type = with lib.types; listOf str;
+            # Separated by spaces -> toString
+            type = with lib.types; coercedTo (listOf str) toString str;
             defaultText = lib.literalExpression ''
               if config.environment.epics.enable
               then config.environment.epics.ca_addr_list
               else [];
             '';
-            apply = lib.concatStringsSep " ";
           };
 
           "org.phoebus.pv.ca/auto_addr_list" = lib.mkOption {
@@ -109,13 +109,12 @@ in
 
               Use `lib.mkForce` to override values from {nix:option}`environment.epics.ca_auto_addr_list`.
             '';
-            type = lib.types.bool;
+            type = with lib.types; coercedTo bool lib.boolToString str;
             defaultText = lib.literalExpression ''
               if config.environment.epics.enable
               then config.environment.epics.ca_auto_addr_list
               else [];
             '';
-            apply = lib.boolToString;
           };
 
           "org.phoebus.applications.alarm/server" = lib.mkOption {
@@ -142,11 +141,10 @@ in
 
               Will be used as the name for the Kafka topic.
             '';
-            type = with lib.types; listOf str;
+            type = with lib.types; coercedTo (listOf str) (lib.concatStringsSep ",") str;
             # TODO: bug? From the code it seems that specifying multiple topics
             # here with create_topics will have issues (AlarmServerMain.java:654)
             default = [ "Accelerator" ];
-            apply = lib.concatStringsSep ",";
           };
 
           # Email options:
@@ -166,9 +164,8 @@ in
             description = ''
               The SMTP server port.
             '';
-            type = lib.types.port;
+            type = with lib.types; coercedTo port toString str;
             default = 25;
-            apply = toString;
           };
 
           "org.phoebus.email/username" = lib.mkOption {

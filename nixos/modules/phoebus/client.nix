@@ -176,13 +176,13 @@ in
 
               Use `lib.mkForce` to override values from {nix:option}`environment.epics.ca_addr_list`.
             '';
-            type = with lib.types; listOf str;
+            # Separated by spaces -> toString
+            type = with lib.types; coercedTo (listOf str) toString str;
             defaultText = lib.literalExpression ''
               if config.environment.epics.enable
               then config.environment.epics.ca_addr_list
               else [];
             '';
-            apply = lib.concatStringsSep " ";
           };
 
           "org.phoebus.pv.ca/auto_addr_list" = lib.mkOption {
@@ -191,13 +191,12 @@ in
 
               Use `lib.mkForce` to override values from {nix:option}`environment.epics.ca_auto_addr_list`.
             '';
-            type = lib.types.bool;
+            type = with lib.types; coercedTo bool lib.boolToString str;
             defaultText = lib.literalExpression ''
               if config.environment.epics.enable
               then config.environment.epics.ca_auto_addr_list
               else [];
             '';
-            apply = lib.boolToString;
           };
 
           "org.csstudio.display.builder.model/color_files" = lib.mkOption {
@@ -271,8 +270,7 @@ in
                 -   May then contain characters or numbers
                 -   May also contain underscores
             '';
-            type = with lib.types; attrsOf str;
-            apply = toMacrosXML;
+            type = with lib.types; coercedTo (attrsOf str) toMacrosXML str;
             default = { };
             example = {
               EXAMPLE_MACRO = "Value from Preferences";
