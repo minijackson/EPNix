@@ -41,8 +41,6 @@ with the following template content:
 {
   epnixLib,
   mkEpicsPackage,
-  local_config_site ? { },
-  local_release ? { },
 }:
 mkEpicsPackage {
   pname = "TODO";
@@ -50,8 +48,6 @@ mkEpicsPackage {
   varname = "TODO";
 
   src = TODO;
-
-  inherit local_config_site local_release;
 
   # For EPICS, native libraries need to be in both
   # nativeBuildInputs and buildInputs
@@ -144,8 +140,6 @@ your package file should look like this:
 {
   epnixLib,
   mkEpicsPackage,
-  local_config_site ? { },
-  local_release ? { },
 }:
 mkEpicsPackage {
   pname = "my-asyn";
@@ -153,8 +147,6 @@ mkEpicsPackage {
   varname = "MY_ASYN";
 
   src = TODO;
-
-  inherit local_config_site local_release;
 
   # For EPICS, native libraries need to be in both
   # nativeBuildInputs and buildInputs
@@ -195,8 +187,6 @@ which you can use like this:
   epnixLib,
   mkEpicsPackage,
   fetchFromGitHub,
-  local_config_site ? { },
-  local_release ? { },
 }:
 mkEpicsPackage {
   pname = "my-asyn";
@@ -209,8 +199,6 @@ mkEpicsPackage {
     tag = "R4-45";
     hash = "";
   };
-
-  inherit local_config_site local_release;
 
   # For EPICS, native libraries need to be in both
   # nativeBuildInputs and buildInputs
@@ -361,8 +349,6 @@ edit your package file as follows:
   calc,
   ipac,
   seq,
-  local_config_site ? { },
-  local_release ? { },
 }:
 mkEpicsPackage {
   # ...
@@ -455,8 +441,6 @@ Edit your package as follows:
   calc,
   ipac,
   seq,
-  local_config_site ? { },
-  local_release ? { },
 }:
 mkEpicsPackage {
   # ...
@@ -617,8 +601,6 @@ native libraries go into both `nativeBuildInputs` and `buildInputs`.
   calc,
   ipac,
   seq,
-  local_config_site ? { },
-  local_release ? { },
 }:
 mkEpicsPackage {
   # ...
@@ -663,7 +645,7 @@ mkEpicsPackage {
   # ...
 
   inherit local_release;
-  local_config_site = local_config_site // {
+  local_config_site = {
     TIRPC = "YES";
   };
 
@@ -785,8 +767,6 @@ it goes into `nativeBuildInputs`.
   calc,
   ipac,
   seq,
-  local_config_site ? { },
-  local_release ? { },
 }:
 mkEpicsPackage {
   # ...

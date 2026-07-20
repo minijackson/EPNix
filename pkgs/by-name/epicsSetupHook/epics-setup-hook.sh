@@ -31,13 +31,13 @@ epicsConfigurePhase() {
 		echo 'CROSS_COMPILER_TARGET_ARCHS="@host_arch@"' >>configure/CONFIG_SITE.local
 	fi
 
-	echo "${local_config_site-}" >>configure/CONFIG_SITE.local
+	echo "${local_config_site_text-}" >>configure/CONFIG_SITE.local
 
 	# Undefine the SUPPORT variable here, since there is no single "support"
 	# directory and this variable is a source of conflicts between RELEASE files
 	echo "undefine SUPPORT" >configure/RELEASE.local
 
-	echo "${local_release-}" >>configure/RELEASE.local
+	echo "${local_release_text-}" >>configure/RELEASE.local
 
 	# set to empty if unset
 	: "''${EPICS_COMPONENTS=}"

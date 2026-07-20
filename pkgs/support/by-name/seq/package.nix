@@ -3,15 +3,11 @@
   mkEpicsPackage,
   fetchdarcs,
   re2c,
-  local_config_site ? { },
-  local_release ? { },
 }:
 mkEpicsPackage {
   pname = "seq";
   version = "2.2.9";
   varname = "SNCSEQ";
-
-  inherit local_config_site local_release;
 
   nativeBuildInputs = [ re2c ];
 
