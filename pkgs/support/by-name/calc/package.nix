@@ -24,7 +24,7 @@ mkEpicsPackage rec {
 
   meta = {
     description = "Support for run-time expression evaluation";
-    homepage = "https://epics.anl.gov/bcda/synApps/calc/calc.html";
+    homepage = "https://epics-modules.github.io/calc/";
     license = epnixLib.licenses.epics;
     maintainers = with epnixLib.maintainers; [ minijackson ];
   };
