@@ -294,6 +294,9 @@ linkcheck_anchors_ignore_for_url = [
 
 linkcheck_retries = 3
 
+# Apparently, timed-out links doesn't get retried, but broken ones do
+linkcheck_report_timeouts_as_broken = True
+
 # -- Options for PlanUML -----------------------------------------------------
 # https://github.com/sphinx-contrib/plantuml/?tab=readme-ov-file#configuration
 
