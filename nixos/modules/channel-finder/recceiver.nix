@@ -79,22 +79,20 @@ in
             };
 
             addrlist = lib.mkOption {
-              type = with lib.types; listOf str;
+              type = with lib.types; coercedTo (listOf str) (lib.concatStringsSep ",") str;
               default = [ "255.255.255.255:5049" ];
-              apply = lib.concatStringsSep ",";
               description = ''
                 List of broadcast addresses.
               '';
             };
 
             procs = lib.mkOption {
-              type = with lib.types; listOf str;
+              type = with lib.types; coercedTo (listOf str) (lib.concatStringsSep ",") str;
               default = [ "show" ];
               example = [
                 "show"
                 "cf"
               ];
-              apply = lib.concatStringsSep ",";
               description = ''
                 Processing chain, sequence of plugin names.
 
@@ -118,14 +116,15 @@ in
 
           cf = {
             environment_vars = lib.mkOption {
-              type = with lib.types; attrsOf str;
+              type =
+                with lib.types;
+                coercedTo (attrsOf str) (lib.concatMapAttrsStringSep "," (k: v: "${k}:${v}")) str;
               default = { };
               example = {
                 ENGINEER = "Engineer";
                 EPICS_BASE = "EpicsVersion";
                 PWD = "WorkingDirectory";
               };
-              apply = val: lib.concatStringsSep "," (lib.mapAttrsToList (k: v: "${k}:${v}") val);
               description = ''
                 Attribute set of `VARIABLE = "PropertyName";`
 

@@ -210,14 +210,13 @@ in
 
               Use `lib.mkForce` to override values from {nix:option}`environment.epics.ca_addr_list`.
             '';
-            type = with lib.types; listOf str;
+            # Separated by spaces -> toString
+            type = with lib.types; coercedTo (listOf str) toString str;
             defaultText = lib.literalExpression ''
               if config.environment.epics.enable
               then config.environment.epics.ca_addr_list
               else [];
             '';
-            # Separated by spaces
-            apply = toString;
           };
 
           EPICS_CA_AUTO_ADDR_LIST = lib.mkOption {
@@ -227,13 +226,12 @@ in
 
               Use `lib.mkForce` to override values from {nix:option}`environment.epics.ca_auto_addr_list`.
             '';
-            type = lib.types.bool;
+            type = with lib.types; coercedTo bool lib.boolToYesNo str;
             defaultText = lib.literalExpression ''
               if config.environment.epics.enable
               then config.environment.epics.ca_auto_addr_list
               else [];
             '';
-            apply = b: if b then "YES" else "NO";
           };
         };
       };

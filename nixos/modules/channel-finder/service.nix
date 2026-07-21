@@ -46,55 +46,46 @@ in
         freeformType = settingsFormat.type;
         options = {
           "server.port" = lib.mkOption {
-            type = lib.types.port;
+            type = with lib.types; coercedTo port toString str;
             default = 8443;
-            # TODO: Weirdness of the javaProperties format?
-            # It says it supports integers and booleans, but during the build
-            # only accepts strings?
-            apply = toString;
             description = "The HTTPS server port for the ChannelFinder service";
           };
 
           "server.http.enable" = lib.mkOption {
-            type = lib.types.bool;
+            type = with lib.types; coercedTo bool lib.boolToString str;
             default = true;
-            apply = lib.boolToString;
             description = "Enable unsecure HTTP";
           };
 
           "server.http.port" = lib.mkOption {
-            type = lib.types.port;
+            type = with lib.types; coercedTo port toString str;
             default = 8080;
-            apply = toString;
             description = "The HTTP server port for the ChannelFinder service";
           };
 
           "elasticsearch.host_urls" = lib.mkOption {
-            type = with lib.types; listOf str;
+            type = with lib.types; coercedTo (listOf str) (lib.concatStringsSep ",") str;
             default = [ "http://localhost:9200" ];
             description = ''
               List of URLs for the Elasticsearch hosts.
 
               All hosts listed here must belong to the same Elasticsearch cluster.
             '';
-            apply = lib.concatStringsSep ",";
           };
 
           "elasticsearch.create.indices" = lib.mkOption {
-            type = lib.types.bool;
+            type = with lib.types; coercedTo bool lib.boolToString str;
             default = true;
             description = ''
               List of URLs for the Elasticsearch hosts.
 
               All hosts listed here must belong to the same Elasticsearch cluster.
             '';
-            apply = lib.boolToString;
           };
 
           "demo_auth.enabled" = lib.mkOption {
-            type = lib.types.bool;
+            type = with lib.types; coercedTo bool lib.boolToString str;
             default = false;
-            apply = lib.boolToString;
             description = ''
               Enable the demo authentication.
 
@@ -106,18 +97,16 @@ in
           };
 
           "ldap.enabled" = lib.mkOption {
-            type = lib.types.bool;
+            type = with lib.types; coercedTo bool lib.boolToString str;
             default = false;
-            apply = lib.boolToString;
             description = ''
               Enable authenticating to an external LDAP server.
             '';
           };
 
           "embedded_ldap.enabled" = lib.mkOption {
-            type = lib.types.bool;
+            type = with lib.types; coercedTo bool lib.boolToString str;
             default = false;
-            apply = lib.boolToString;
             description = ''
               Enable the embedded LDAP authentication.
             '';

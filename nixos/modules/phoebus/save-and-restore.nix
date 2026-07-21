@@ -49,9 +49,8 @@ in
         options = {
           "server.port" = lib.mkOption {
             description = "Port for the Save-and-restore service";
-            type = lib.types.port;
+            type = with lib.types; coercedTo port toString str;
             default = 8080;
-            apply = toString;
           };
 
           "auth.impl" = lib.mkOption {
@@ -197,10 +196,9 @@ in
 
           "elasticsearch.http.port" = lib.mkOption {
             description = "Elasticsearch server port.";
-            type = lib.types.port;
+            type = with lib.types; coercedTo port toString str;
             default = config.services.elasticsearch.port;
             defaultText = lib.literalExpression "config.services.elasticsearch.port";
-            apply = toString;
           };
         };
       };

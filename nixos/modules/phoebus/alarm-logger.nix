@@ -47,16 +47,14 @@ in
         options = {
           "server.port" = lib.mkOption {
             description = "Port for the Alarm Logger service";
-            type = lib.types.port;
+            type = with lib.types; coercedTo port toString str;
             default = 8080;
-            apply = toString;
           };
 
           alarm_topics = lib.mkOption {
             description = "Alarm topics to be logged";
-            type = with lib.types; listOf str;
+            type = with lib.types; coercedTo (listOf str) (lib.concatStringsSep ",") str;
             default = [ "Accelerator" ];
-            apply = lib.concatStringsSep ",";
           };
 
           es_urls = lib.mkOption {
@@ -65,24 +63,21 @@ in
 
               All nodes must belong to the same cluster.
             '';
-            type = with lib.types; listOf str;
+            type = with lib.types; coercedTo (listOf str) (lib.concatStringsSep ",") str;
             default = [ "http://localhost:${toString config.services.elasticsearch.port}" ];
             defaultText = lib.literalExpression ''[ "http://localhost:''${toString config.services.elasticsearch.port}" ]'';
-            apply = lib.concatStringsSep ",";
           };
 
           es_sniff = lib.mkOption {
             description = "Use the Elasticseach sniff feature";
-            type = lib.types.bool;
+            type = with lib.types; coercedTo bool lib.boolToString str;
             default = false;
-            apply = lib.boolToString;
           };
 
           es_create_templates = lib.mkOption {
             description = "Automatically create the index templates needed";
-            type = lib.types.bool;
+            type = with lib.types; coercedTo bool lib.boolToString str;
             default = true;
-            apply = lib.boolToString;
           };
 
           "bootstrap.servers" = lib.mkOption {
@@ -111,9 +106,8 @@ in
 
               Two threads per topic/configuration are required.
             '';
-            type = lib.types.ints.positive;
+            type = with lib.types; coercedTo ints.positive toString str;
             default = 4;
-            apply = toString;
           };
         };
       };
