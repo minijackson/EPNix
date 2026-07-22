@@ -22,10 +22,22 @@ sys.path.append(os.path.abspath("./_ext"))
 
 project = "EPNix"
 author = "The EPNix Contributors"
-release = os.environ.get("EPNIX_VERSION_CURRENT", "dev")
+release = os.environ.get(
+    "EPNIX_VERSION_CURRENT",
+    os.environ.get("READTHEDOCS_VERSION", "dev"),
+)
+# Handle ReadTheDocs naming:
+# - `latest` is the `master` branch
+# - numbered versions are PRs
+if release == "latest":
+    release = "dev"
+elif release.isdigit():
+    release = f"pr-{release}"
 
 source_repository = "https://github.com/epics-extensions/EPNix"
-branch = "master" if release == "dev" else release
+# If we're on a PR, make links point to `master`
+# since the PR branch should be from another repository.
+branch = "master" if release == "dev" or release.startswith("pr-") else release
 
 language = "en"
 
