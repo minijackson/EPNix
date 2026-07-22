@@ -5,7 +5,6 @@ let
     modules = [
       epnixLib.inputs.self.nixosModules.default
       epnixLib.inputs.self.nixosModules.phoebus-ecosystem
-      ./qemu-configuration.nix
     ];
   };
 

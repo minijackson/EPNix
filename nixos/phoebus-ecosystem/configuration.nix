@@ -15,6 +15,7 @@
 
     # Configuration used only when building images
     ./images/virtualbox.nix
+    ./images/qemu-vm.nix
   ];
 
   _module.args.ports = {
