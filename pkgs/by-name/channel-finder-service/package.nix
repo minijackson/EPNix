@@ -21,7 +21,7 @@ maven.buildMavenPackage rec {
 
   buildOffline = true;
   mvnJdk = jdk25_headless;
-  mvnHash = "sha256-tUo1mTGpLa1DTj3V9HkxalrVyjDgf49dg1TryPIv7Z0=";
+  mvnHash = "sha256-C9/72Hhg7aBAyGpd7azf0r2KnMTRffuYYxNPghm8Rak=";
   mvnParameters = "-Dproject.build.outputTimestamp=1980-01-01T00:00:02Z";
 
   # Dynamic test dependencies
