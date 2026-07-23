@@ -2,6 +2,7 @@
   config,
   epnixLib,
   lib,
+  options,
   pkgs,
   ...
 }:
@@ -38,6 +39,9 @@ let
 
   xsltproc = "${lib.getBin pkgs.libxslt}/bin/xsltproc";
   xmllint = "${lib.getBin pkgs.libxml2}/bin/xmllint";
+
+  tomcatPkgVersion = config.services.tomcat.package.version;
+  tomcatPkgOpt = options.services.tomcat.package;
 in
 {
   options.services.pvws = {
@@ -142,6 +146,13 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = (lib.versions.major tomcatPkgVersion) == "9";
+        message = "PVWS requires Tomcat 9, but Tomcat was set to version '${tomcatPkgVersion}' in ${lib.showFiles tomcatPkgOpt.files}.";
+      }
+    ];
+
     services.pvws.settings = {
       CATALINA_OUT_CMD = "cat";
       EPICS_CA_ADDR_LIST =
